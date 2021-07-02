@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+#define LOGD(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
 #define LOGI(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
 #define LOGE(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
 
@@ -52,8 +53,10 @@ void to_json(json &j, const DTO& dto)
 void from_json(json &j, DTO& dto) {
     for(auto [k, v] : j.items()) {
         auto & group = dto.dock[LotGroup(k.c_str())];
-        for(const auto & [id, name ] : v.items()) {
-            std::string n = name.get<std::string>();
+        for(const auto & item: v) {
+            std::string n = item[0];
+            std::string id = item[1];
+            LOGD("----%s %s %s", k.c_str(), n.c_str(), id.c_str());
             group.emplace_front(n.c_str(), std::atoi(id.c_str()));
         }
     }
@@ -84,6 +87,13 @@ public:
         }
         json j = dto;
         std::string str = j.dump();
+        json jb = json::parse(str);
+        DTO newDto;
+        from_json(jb, newDto);
+        for(const auto & [k, v] : newDto.dock) {
+            LOGI("application: %s", k.name.c_str());
+        }
+        
         LOGI("window string:%s", str.c_str());
         LOGI("getWindowList end");
     }
