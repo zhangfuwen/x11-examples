@@ -19,11 +19,15 @@ if(NOT ${nlohmann_json_FOUND})
     message("on ubuntu: apt-get install nlohmann-json3-dev")
 endif()
 
+include(thirdparty/fetch_contents.cmake)
 
 set(LIB_NAME example)
 add_executable(${LIB_NAME})
-target_sources(${LIB_NAME} PRIVATE example.cpp)
-target_link_libraries(${LIB_NAME} PUBLIC ${WNCK_LIBRARIES} nlohmann_json::nlohmann_json)
+target_sources(${LIB_NAME} PRIVATE example.cpp socket.cpp)
+target_link_libraries(${LIB_NAME} PUBLIC ${WNCK_LIBRARIES} nlohmann_json::nlohmann_json socket++ polym)
+
+get_directory_property (inc_dirs INCLUDE_DIRECTORIES)
+message("include_directories ${inc_dirs}")
 
 
 

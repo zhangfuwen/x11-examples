@@ -12,13 +12,15 @@
 #include <libwnck/libwnck.h>
 
 #include <functional>
+#include <future>
+
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#define LOGD(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
-#define LOGI(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
-#define LOGE(fmt, ...) printf(fmt "\n", ##__VA_ARGS__)
+#include "Log.h"
+#include "socket.cpp"
+
 
 struct LotWindow {
     LotWindow(const char * s, gulong id) : name(s), xid(id) {}
@@ -65,6 +67,16 @@ void from_json(json &j, DTO& dto) {
 
 class LotDock {
 public:
+    LotDock()
+    {
+        serverThread = std::thread([this]() {
+                this->server();
+            });
+    }
+    ~LotDock()
+    {
+        serverThread.join();
+    }
     void getWindowList(WnckScreen * screen)
     {
 
@@ -93,6 +105,8 @@ public:
         for(const auto & [k, v] : newDto.dock) {
             LOGI("application: %s", k.name.c_str());
         }
+        server.sendMsg(str);
+
         
         LOGI("window string:%s", str.c_str());
         LOGI("getWindowList end");
@@ -130,16 +144,16 @@ public:
             LOGI("close window:%s", 
                     wnck_window_get_name(window));
         } 
-
-
     }
+private:
+    Server server;
+    std::thread serverThread;
+
 
 };
 
-
-int main(int argc, char **argv)
+void server_main(int argc, char **argv)
 {
-
     gdk_init(&argc, &argv);
     GMainLoop *loop = g_main_loop_new(NULL, FALSE);
 
@@ -158,6 +172,27 @@ int main(int argc, char **argv)
 
     g_main_loop_run(loop);
     g_main_loop_unref(loop);
-    return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+    std::string progName(argv[0]);
+    if(progName.compare("./client") == 0)
+    {
+        std::future<void> clientThread;
+        Client client;
+        client.send("hello");
+        clientThread = std::async([&client]() {
+                while(true) {
+                    auto msg = client.recvMsg();
+                    LOGI("msg:%s", msg.c_str());
+                }
+        });
+        clientThread.wait();
+        return 0;
+    } else {
+        server_main(argc, argv);
+    }
 }
 
