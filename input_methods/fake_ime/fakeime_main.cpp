@@ -46,6 +46,7 @@ gboolean engine_process_key_event_cb(IBusEngine *engine,
 {
     LOG_INFO("engine_process_key_event");
     ibus_engine_show_lookup_table(engine);
+    ibus_engine_show_preedit_text(engine);
     ibus_engine_show_auxiliary_text(engine);
 
     if(state & IBUS_RELEASE_MASK) {
@@ -62,7 +63,8 @@ gboolean engine_process_key_event_cb(IBusEngine *engine,
     default:
         ibus_lookup_table_append_candidate(table, ibus_text_new_from_string("hello"));
         ibus_lookup_table_append_candidate(table, ibus_text_new_from_string("hello"));
-        // ibus_engine_update_preedit_text(engine, ibus_text_new_from_string("xx"), 2, TRUE);
+        ibus_engine_update_lookup_table_fast(engine, table, TRUE); // this line determines if lookup table is displayed
+        ibus_engine_update_preedit_text(engine, ibus_text_new_from_string("xx"), 2, TRUE);
         ibus_lookup_table_set_cursor_pos(table, 0);
         break;
     }
@@ -81,7 +83,7 @@ void engine_enable_cb(IBusEngine *engine)
     LOG_INFO("table %p", table);
     g_object_ref_sink(table);
 
-    ibus_lookup_table_set_orientation(table, IBUS_ORIENTATION_HORIZONTAL);
+    ibus_lookup_table_set_orientation(table, IBUS_ORIENTATION_VERTICAL);
     ibus_engine_show_lookup_table(engine);
     ibus_engine_show_auxiliary_text(engine);
 }
@@ -166,7 +168,7 @@ int main(gint argc, gchar **argv)
 
     IBusComponent *component;
 
-    if (0)
+    if (bus)
     {
         if (!ibus_bus_request_name(bus, "org.freedesktop.IBus.LotIme", 0))
         {

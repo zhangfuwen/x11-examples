@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<component>
+	<name>org.freedesktop.IBus.LotIme</name>
+	<description>Input method for Linux On TNT</description>
+	<exec>/usr/bin/ibus-lotime --ibus</exec>
+	<version>1.0</version>
+	<author>zhangfuwen</author>
+	<license>MIT</license>
+	<homepage>xx</homepage>
+	<textdomain>ibus-lotime</textdomain>
+
+	<engines>
+		<engine>
+			<name>lotime</name>
+			<language>zh</language>
+			<license>MIT</license>
+			<author>zhangfuwen</author>
+			<icon>/home/zhangfuwen/bin/sdk-tools-linux-3859397/platforms/android-29/data/res/mipmap-mdpi/sym_def_app_icon.png</icon>
+			<layout>us</layout>
+			<longname>Input method for Linux On TNT</longname>
+			<description>Input method for Linux On TNT</description>
+			<rank>0</rank>
+		</engine>
+	</engines>
+</component>
